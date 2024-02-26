@@ -19,9 +19,8 @@ import time
 import traceback
 
 import zhipuai
-
-from kubeagi_core.qa_provider.prompt import PROMPT_TEMPLATE
 from kubeagi_core.qa_provider.base import BaseQAProvider
+from kubeagi_core.qa_provider.prompt import PROMPT_TEMPLATE
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +37,9 @@ class QAProviderZhiPuAIOnline(BaseQAProvider):
 
         zhipuai.api_key = api_key
 
-    def generate_qa_list(self, text, prompt_template=None, retry_count=None, retry_wait_seconds=None):
+    def generate_qa_list(
+        self, text, prompt_template=None, retry_count=None, retry_wait_seconds=None
+    ):
         """Generate the QA list.
 
         Parameters
@@ -67,9 +68,7 @@ class QAProviderZhiPuAIOnline(BaseQAProvider):
 
         invoke_count = 0
         while True:
-            logger.debug(
-                "".join([f"content.\n", f"{content}\n"])
-            )
+            logger.debug("".join([f"content.\n", f"{content}\n"]))
             try:
                 if invoke_count >= int(retry_count):
                     logger.error(
@@ -116,7 +115,7 @@ class QAProviderZhiPuAIOnline(BaseQAProvider):
                     time.sleep(retry_wait_seconds)  # sleep 120 seconds
                     invoke_count += 1
                     message = "模型调用失败，失败原因: " + response["msg"]
-            except Exception as ex:
+            except Exception:
                 logger.warn(
                     f"zhipuai request exception, wait for {retry_wait_seconds} seconds and retry"
                 )
@@ -141,7 +140,7 @@ class QAProviderZhiPuAIOnline(BaseQAProvider):
                 a = match[4]
                 if q and a:
                     result.append([q, a])
-        except Exception as ex:
+        except Exception:
             logger.error(
                 "".join(
                     [
