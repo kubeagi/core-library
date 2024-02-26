@@ -18,13 +18,11 @@ import re
 import time
 import traceback
 
+from kubeagi_core.qa_provider.base import BaseQAProvider
+from kubeagi_core.qa_provider.prompt import PROMPT_TEMPLATE
 from langchain import LLMChain
 from langchain.chat_models import ChatOpenAI
-from langchain.prompts.chat import (ChatPromptTemplate,
-                                    HumanMessagePromptTemplate)
-
-from kubeagi_core.qa_provider.prompt import PROMPT_TEMPLATE
-from kubeagi_core.qa_provider.base import BaseQAProvider
+from langchain.prompts.chat import ChatPromptTemplate, HumanMessagePromptTemplate
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +44,9 @@ class QAProviderOpenAI(BaseQAProvider):
             max_tokens=int(max_tokens),
         )
 
-    def generate_qa_list(self, text, prompt_template=None, retry_count=None, retry_wait_seconds=None):
+    def generate_qa_list(
+        self, text, prompt_template=None, retry_count=None, retry_wait_seconds=None
+    ):
         """Generate the QA list.
 
         Parameters
@@ -95,9 +95,7 @@ class QAProviderOpenAI(BaseQAProvider):
                 if len(result) > 0:
                     break
 
-                logger.warn(
-                    "failed to get QA list, wait for 10 seconds and retry"
-                )
+                logger.warn("failed to get QA list, wait for 10 seconds and retry")
                 time.sleep(retry_wait_seconds)  # sleep 10 seconds
                 invoke_count += 1
                 message = "模型调用成功，生成的QA格式不对，请更换prompt"

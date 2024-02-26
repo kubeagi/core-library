@@ -5,7 +5,7 @@ Kubeagi Core including some common functions, these functions are designed to be
 
 There are several ways to use the `kubeagi_core` library:
 * Install the library
-    1. [Install from PyPI](https://github.com/kubeagi/core-library/libs/core/kubeagi_core#installing-the-library)
+    1. [Install from PyPI](https://github.com/kubeagi/core-library/tree/main/libs/core#installing-the-library)
 
 ### Installing the library
 Use the following instructions to get up and running with `kubeagi_core` and test your

@@ -12,23 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from kubeagi_core.kube.custom_controller import Dataset
 
-from abc import ABC, abstractmethod
+
+def test_update_dataset_k8s_cr():
+    print(">>> Starting update dataset k8s cr status.")
+    dataset = Dataset(
+        namespace="rag-eval",
+        version_data_set_name="test-v1",
+        kubeconfig_path="/happy_work_space/.kube/config",
+    )
+
+    res = dataset.update_dataset_k8s_cr(
+        reason="processing", message="Data processing in progress"
+    )
+    print("<<< Finished")
+    print(f"{res}")
 
 
-class BaseQAProvider(ABC):
-    """The Base class for the QA provider."""
-
-    @abstractmethod
-    def generate_qa_list(
-        self, text, prompt_template=None, retry_count=None, retry_wait_seconds=None
-    ):
-        """Generate the QA list.
-
-        Parameters
-        ----------
-        text
-            use the text to generate QA list
-        prompt_template
-            the prompt template
-        """
+if __name__ == "__main__":
+    test_updata_dataset_k8s_cr()
