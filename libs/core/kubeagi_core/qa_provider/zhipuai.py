@@ -38,7 +38,9 @@ class QAProviderZhiPuAIOnline(BaseQAProvider):
 
         zhipuai.api_key = api_key
 
-    def generate_qa_list(self, text, prompt_template=None, retry_count=None, retry_wait_seconds=None):
+    def generate_qa_list(
+        self, text, prompt_template=None, retry_count=None, retry_wait_seconds=None
+    ):
         """Generate the QA list.
 
         Parameters
@@ -67,9 +69,7 @@ class QAProviderZhiPuAIOnline(BaseQAProvider):
 
         invoke_count = 0
         while True:
-            logger.debug(
-                "".join([f"content.\n", f"{content}\n"])
-            )
+            logger.debug("".join([f"content.\n", f"{content}\n"]))
             try:
                 if invoke_count >= int(retry_count):
                     logger.error(
