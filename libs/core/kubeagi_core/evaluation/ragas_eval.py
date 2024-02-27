@@ -17,12 +17,12 @@ from typing import Union
 import os
 import pandas as pd
 from datasets import Dataset
-from langchain.chat_models import ChatOpenAI
-from langchain.embeddings import OpenAIEmbeddings as BaseOpenAIEmbeddings
+from langchain_openai import ChatOpenAI
+from langchain_openai import OpenAIEmbeddings as BaseOpenAIEmbeddings
 
 from ragas import evaluate
-from ragas.embeddings import RagasEmbeddings
-from ragas.llms import LangchainLLM, RagasLLM
+from ragas.embeddings import BaseRagasEmbeddings
+from ragas.llms import BaseRagasLLM
 from ragas.metrics import (
     AnswerCorrectness,
     AnswerRelevancy,
@@ -34,9 +34,8 @@ from ragas.metrics import (
 )
 from ragas.evaluation import Result
 from ragas.metrics.base import Metric
-from ragas.utils import NO_KEY
-from ragas.exceptions import OpenAIKeyNotFound
 
+NO_KEY = "NO_KEY"
 
 class RagasEval:
     """
@@ -58,8 +57,8 @@ class RagasEval:
     llm_model: str = "gpt-3.5-turbo"
     embedding_model: str = "text-embedding-ada-002"
 
-    llm: RagasLLM
-    embeddings: RagasEmbeddings
+    llm: BaseRagasLLM
+    embeddings: BaseRagasEmbeddings
 
     def __init__(
         self,
@@ -87,12 +86,10 @@ class RagasEval:
         )
 
         # Initialize judge llm
-        self.llm = LangchainLLM(
-            llm=ChatOpenAI(
+        self.llm = ChatOpenAI(
                 model_name=self.llm_model,
                 openai_api_key=self.api_key,
                 openai_api_base=self.api_base,
-            )
         )
 
         # Initialize judge embedding
@@ -157,7 +154,7 @@ class RagasEval:
         return Dataset.from_pandas(data)
 
     def _metrics(
-        self, metrics: list[str], batch_size: Union[int, None] = 1
+        self, metrics: list[str]
     ) -> list[Metric]:
         """
         initializes the metrics for evaluation.
@@ -168,20 +165,20 @@ class RagasEval:
         Returns:
             list[Metric]: A list of Metric objects representing the set metrics.
         """
-        context_precision = ContextPrecision(llm=self.llm, batch_size=batch_size)
-        context_recall = ContextRecall(llm=self.llm, batch_size=batch_size)
-        context_relevancy = ContextRelevancy(llm=self.llm, batch_size=batch_size)
+        context_precision = ContextPrecision(llm=self.llm)
+        context_recall = ContextRecall(llm=self.llm)
+        context_relevancy = ContextRelevancy(llm=self.llm)
 
         answer_relevancy = AnswerRelevancy(
-            llm=self.llm, embeddings=self.embeddings, batch_size=batch_size
+            llm=self.llm, embeddings=self.embeddings
         )
         answer_similarity = AnswerSimilarity(
-            llm=self.llm, embeddings=self.embeddings, batch_size=batch_size
+            llm=self.llm, embeddings=self.embeddings
         )
         answer_correctness = AnswerCorrectness(
-            llm=self.llm, answer_similarity=answer_similarity, batch_size=batch_size
+            llm=self.llm, answer_similarity=answer_similarity
         )
-        faithfulness = Faithfulness(llm=self.llm, batch_size=batch_size)
+        faithfulness = Faithfulness(llm=self.llm)
 
         ms = []
         for m in metrics:
@@ -203,7 +200,7 @@ class RagasEval:
 
 
 # OpenAIEmbeddings inherits from
-class OpenAIEmbeddings(BaseOpenAIEmbeddings, RagasEmbeddings):
+class OpenAIEmbeddings(BaseOpenAIEmbeddings, BaseRagasEmbeddings):
     api_key: str = NO_KEY
 
     def __init__(
@@ -226,4 +223,4 @@ class OpenAIEmbeddings(BaseOpenAIEmbeddings, RagasEmbeddings):
             if os_env_key != NO_KEY:
                 self.api_key = os_env_key
             else:
-                raise OpenAIKeyNotFound
+                raise ValueError("openai api key must be provided")
