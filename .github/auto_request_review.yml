@@ -1,0 +1,14 @@
+reviewers:
+  defaults:
+    - bjwswang
+    - wangxinbiao
+
+options:
+  ignore_draft: true
+  ignored_keywords:
+    - DO NOT REVIEW
+    - DNR
+    - DO NOT MERGE
+    - DNM
+    - WIP
+    - WORK IN PROCESS
