@@ -1,0 +1,36 @@
+name: Python package
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11"]
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: 'pip'
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install -e './libs/core/.[dev]'
+    - name: Run linter
+      run: |
+        pylint -d all -e E0602 ./libs/
+    - name: Check formatting
+      run: |
+        black --check .

@@ -15,6 +15,7 @@
 from kubeagi_core.qa_provider.openai import QAProviderOpenAI
 from kubeagi_core.qa_provider.zhipuai import QAProviderZhiPuAIOnline
 
+
 def test_qa_provider_by_open_ai():
     print(">>> Starting generate qa by open ai")
     qa_provider = QAProviderOpenAI(
@@ -32,6 +33,7 @@ def test_qa_provider_by_open_ai():
     print("<<< Finished")
     print(f"QA data: {data}")
 
+
 def test_qa_provider_by_zhipu_ai():
     print(">>> Starting generate qa by zhipu ai")
     qa_provider = QAProviderZhiPuAIOnline(
@@ -46,6 +48,7 @@ def test_qa_provider_by_zhipu_ai():
 
     print("<<< Finished")
     print(f"QA data: {data}")
+
 
 if __name__ == "__main__":
     test_qa_provider_by_open_ai()

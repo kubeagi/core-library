@@ -20,7 +20,9 @@ class BaseQAProvider(ABC):
     """The Base class for the QA provider."""
 
     @abstractmethod
-    def generate_qa_list(self, text, prompt_template=None, retry_count=None, retry_wait_seconds=None):
+    def generate_qa_list(
+        self, text, prompt_template=None, retry_count=None, retry_wait_seconds=None
+    ):
         """Generate the QA list.
 
         Parameters
