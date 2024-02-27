@@ -19,9 +19,8 @@ import time
 import traceback
 
 import zhipuai
-
-from kubeagi_core.qa_provider.prompt import PROMPT_TEMPLATE
 from kubeagi_core.qa_provider.base import BaseQAProvider
+from kubeagi_core.qa_provider.prompt import PROMPT_TEMPLATE
 
 logger = logging.getLogger(__name__)
 
