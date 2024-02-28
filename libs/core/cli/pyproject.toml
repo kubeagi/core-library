@@ -6,7 +6,7 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "kubeagi_core"
+name = "core_cli"
 version = "0.0.1"
 readme = "README.md"
 requires-python = ">=3.8"
@@ -16,10 +16,7 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "langchain==0.0.354",
-    "ragas==0.0.22",
-    "zhipuai==1.0.7",
-    "kubernetes==25.3.0",
+    "typer==0.9.0",
 ]
 
 [project.optional-dependencies]
@@ -28,3 +25,6 @@ dev = ["black==23.3.0", "pylint==3.1.0"]
 [project.urls]
 Homepage = "https://github.com/kubeagi/core-library"
 Issues = "https://github.com/kubeagi/core-library/issues"
+
+[project.scripts]
+convert = "core_cli.cli:app"
