@@ -6,7 +6,7 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "core_cli"
+name = "kubeagi_cli"
 version = "0.0.1"
 readme = "README.md"
 requires-python = ">=3.8"
@@ -27,4 +27,4 @@ Homepage = "https://github.com/kubeagi/core-library"
 Issues = "https://github.com/kubeagi/core-library/issues"
 
 [project.scripts]
-convert = "core_cli.cli:app"
+convert = "kubeagi_cli.cli:app"
