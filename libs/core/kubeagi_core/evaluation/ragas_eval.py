@@ -32,6 +32,7 @@ from ragas.metrics import (
     ContextRelevancy,
     Faithfulness,
 )
+from ragas.evaluation import Result
 from ragas.metrics.base import Metric
 from ragas.utils import NO_KEY
 from ragas.exceptions import OpenAIKeyNotFound
@@ -101,9 +102,33 @@ class RagasEval:
             model_name=self.embedding_model,
         )
 
-    def prepare_dataset(self, dataset: str = NO_KEY) -> Dataset:
+    def evaluate(
+        self,
+        dataset: str,
+        metrics: str,
+        column_map: dict[str, str] = {},
+    ) -> Result:
         """
-        Prepares the dataset for evaluation.
+        Evaluates the dataset using the specified metrics and saves the evaluation results.
+
+        Parameters:
+            dataset (Dataset): The dataset to be evaluated.
+            metrics (list[Metric] | None): The list of metrics to evaluate the dataset. Defaults to None.
+            column_map (dict[str, str]): A mapping of column names in the dataset to the corresponding column names
+                                        expected by the evaluation function. Defaults to an empty dictionary.
+
+        Returns:
+            None
+        """
+        print(f"dataset: {dataset} Metrics: {metrics}")
+        dataset_instance = self._dataset(dataset)
+        metrics_instances = self._metrics(metrics)
+
+        return evaluate(dataset_instance, metrics_instances, column_map)
+
+    def _dataset(self, dataset: str = NO_KEY) -> Dataset:
+        """
+        initializes the dataset for evaluation.
 
         Parameters:
             dataset (str): The path to the dataset file.
@@ -131,11 +156,11 @@ class RagasEval:
 
         return Dataset.from_pandas(data)
 
-    def get_ragas_metrics(
+    def _metrics(
         self, metrics: list[str], batch_size: Union[int, None] = 1
     ) -> list[Metric]:
         """
-        Sets the metrics for evaluation.
+        initializes the metrics for evaluation.
 
         Parameters:
             metrics (list[str]): A list of metric names to be set.
@@ -175,35 +200,6 @@ class RagasEval:
             elif m == "faithfulness":
                 ms.append(faithfulness)
         return ms
-
-    def evaluate(
-        self,
-        dataset: Dataset,
-        metrics: list[Metric] | None = None,
-        column_map: dict[str, str] = {},
-    ):
-        """
-        Evaluates the dataset using the specified metrics and saves the evaluation results.
-
-        Parameters:
-            dataset (Dataset): The dataset to be evaluated.
-            metrics (list[Metric] | None): The list of metrics to evaluate the dataset. Defaults to None.
-            column_map (dict[str, str]): A mapping of column names in the dataset to the corresponding column names
-                                        expected by the evaluation function. Defaults to an empty dictionary.
-
-        Returns:
-            None
-        """
-        try:
-            result = evaluate(dataset, metrics, column_map)
-        except Exception as e:
-            print("An error occurred during evaluation:", str(e))
-            return
-        # count total score and avearge
-        summary = result.scores.to_pandas().mean()
-        summary["total_score"] = summary.mean()
-        summary.to_csv("summary.csv")
-        result.to_pandas().to_csv("result.csv")
 
 
 # OpenAIEmbeddings inherits from
