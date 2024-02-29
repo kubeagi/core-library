@@ -25,6 +25,26 @@ app = typer.Typer(no_args_is_help=True, add_completion=False)
 
 
 @app.command()
+def serve(
+    host: Annotated[
+        str,
+        typer.Option(
+            help="The base URL for the API. Defaults to OpenAI.",
+        ),
+    ] = "127.0.0.1",
+    port: Annotated[
+        int,
+        typer.Option(
+            help="The base URL for the API. Defaults to OpenAI.",
+        ),
+    ] = 8000,
+):
+    import uvicorn
+
+    uvicorn.run("server:app", host=host, port=port, reload=True)
+
+
+@app.command()
 def evaluate(
     metrics: Annotated[
         str,
