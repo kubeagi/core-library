@@ -16,14 +16,16 @@ from kubeagi_core.kube.client import ConfigMap
 
 
 class Config:
-    """Operate Kubernetes config"""
+    """
+    KubeAGI's system config
+    See https://github.com/kubeagi/arcadia/blob/main/pkg/config/config_type.go#L24 for more details.
+    """
 
     def __init__(self, namespace, name, kubeconfig_path):
-        config_map = ConfigMap(kubeconfig_path=kubeconfig_path)
-        self._config = config_map.read_namespaced_config_map(
-            name=name, namespace=namespace
-        )
-        self._config = self._config.data.get("config")
+        config_in_cm = ConfigMap(
+            kubeconfig_path=kubeconfig_path
+        ).read_namespaced_config_map(name=name, namespace=namespace)
+        self._config = config_in_cm.data.get("config")
 
     def get_config(self):
         """get config info."""
