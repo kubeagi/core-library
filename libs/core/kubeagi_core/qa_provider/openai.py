@@ -90,8 +90,8 @@ class QAProviderOpenAI(BaseQAProvider):
                     status = 1000
                     break
 
-                response = llm_chain.run(text=text)
-                result = self.__get_qa_list_from_response(response)
+                response = llm_chain.invoke(input=text)
+                result = self.__get_qa_list_from_response(response.get("text"))
                 if len(result) > 0:
                     break
 

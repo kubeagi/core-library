@@ -12,21 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from kubeagi_core.config import Config
+from kubeagi_core.document_loaders import DocxLoader
 
 
-def test_config():
-    print(">>> Start retrieving secret information.")
-    config = Config(
-        namespace="arcadia",
-        name="arcadia-config",
-        kubeconfig_path="/happy_work_space/.kube/config",
-    )
+def test_load_docx():
+    print(">>> Starting load docx")
+    loader = DocxLoader(file_path="xxx.docx")
 
-    res = config.get_config()
+    document = loader.load()
     print("<<< Finished")
-    print(f"{res}")
+    print(f"document: {document}")
 
 
 if __name__ == "__main__":
-    test_config()
+    test_load_docx()

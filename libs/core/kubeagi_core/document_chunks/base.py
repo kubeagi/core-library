@@ -12,21 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from kubeagi_core.config import Config
+from abc import ABC, abstractmethod
+from typing import List
+
+from langchain_core.documents import Document
 
 
-def test_config():
-    print(">>> Start retrieving secret information.")
-    config = Config(
-        namespace="arcadia",
-        name="arcadia-config",
-        kubeconfig_path="/happy_work_space/.kube/config",
-    )
+class TextSplitter(ABC):
+    """Interface for splitting text into chunks."""
 
-    res = config.get_config()
-    print("<<< Finished")
-    print(f"{res}")
-
-
-if __name__ == "__main__":
-    test_config()
+    @abstractmethod
+    def split_documents(self, documents: List[Document]) -> List[Document]:
+        """Split document."""
