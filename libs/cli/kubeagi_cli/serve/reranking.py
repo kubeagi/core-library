@@ -15,28 +15,76 @@
 
 from typing import List
 from FlagEmbedding import FlagReranker
+from BCEmbedding import RerankerModel
+from abc import ABC, abstractmethod
 
 
-class Reranking:
+class BaseReranking(ABC):
     """
-    The Reranking is used to run reranking models like bge-reranker-large(https://huggingface.co/BAAI/bge-reranker-large)
+    The Reranking is used to run reranking models.
     """
 
-    _model_path: str
+    @abstractmethod
+    def run(self, pairs: List[List[str]]):
+        """run reranking models to rerank pairs."""
+
+
+class BGEReranking(BaseReranking):
+    """
+    The BGEReranking is used to run reranking models with FlagEmbedding like sbge-reranker-large(https://huggingface.co/BAAI/bge-reranker-large)
+    """
+
     _reranker: FlagReranker
 
     def __init__(
         self,
-        model_path: str,
+        model_name_or_path: str,
     ):
-        self._model_path = model_path
+        self._reranker = FlagReranker(
+            model_name_or_path=model_name_or_path, use_fp16=False
+        )
 
+    # run bge reranking model
     def run(self, pairs: List[List[str]]):
-        reranker = FlagReranker(self._model_path, use_fp16=False)
         if len(pairs) > 0:
-            result = reranker.compute_score(pairs)
+            result = self._reranker.compute_score(pairs)
             if isinstance(result, float):
                 result = [result]
             return result
         else:
             return None
+
+
+class BCEReranking(BaseReranking):
+    """
+    The BGEReranking is used to run reranking models with BCEEmbedding from https://github.com/netease-youdao/BCEmbedding
+    """
+
+    _reranker: RerankerModel
+
+    def __init__(
+        self,
+        model_name_or_path: str,
+    ):
+        self._reranker = RerankerModel(
+            model_name_or_path=model_name_or_path, use_fp16=False
+        )
+
+    # run bge reranking model
+    def run(self, pairs: List[List[str]]):
+        if len(pairs) > 0:
+            result = self._reranker.compute_score(pairs)
+            if isinstance(result, float):
+                result = [result]
+            return result
+        else:
+            return None
+
+
+def select_reranking(model_name_or_path: str) -> BaseReranking:
+    if "bge" in model_name_or_path.lower():
+        return BGEReranking(model_name_or_path)
+    if "bce" in model_name_or_path.lower():
+        return BCEReranking(model_name_or_path)
+
+    raise ValueError(f"No valid reranking runner for {model_name_or_path}")

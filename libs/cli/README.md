@@ -52,3 +52,4 @@ kubeagi-cli evaluate context_precision ~/core-library/examples/testdata/ragas.cs
 
 The above command will run the rag evaluation with metrics `context_precision` and test dataset `~/core-library/examples/testdata/ragas.csv` with the help 
 of OpenAI.
+

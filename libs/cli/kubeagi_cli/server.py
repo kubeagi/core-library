@@ -16,8 +16,8 @@ import os
 from typing import Optional, List
 from fastapi import FastAPI
 
-from pydantic import BaseModel
-from serve.reranking import Reranking
+from pydantic import BaseModel, Field
+from serve.reranking import select_reranking
 
 app = FastAPI()
 
@@ -28,14 +28,17 @@ def health():
 
 
 class RerankingInput(BaseModel):
+    model_name_or_path: Optional[str] = Field(default=os.getenv("RERANKING_MODEL_PATH"))
     question: str
     answers: Optional[List[str]]
 
 
 @app.post("/api/v1/reranking")
-def reranking(input_docs: RerankingInput):
+def reranking(input: RerankingInput):
+    # select reranking models based on model path
+    reranker = select_reranking(input.model_name_or_path)
+    # prepare reranking pairs
     pairs = []
-    for answer in input_docs.answers:
-        pairs.append([input_docs.question, answer])
-    reranker = Reranking(model_path=os.getenv("RERANKING_MODEL_PATH"))
+    for answer in input.answers:
+        pairs.append([input.question, answer])
     return reranker.run(pairs)

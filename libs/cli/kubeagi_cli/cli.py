@@ -15,7 +15,6 @@
 import os
 import typer
 from typing_extensions import Annotated
-from typing import Optional
 from kubeagi_core.evaluation.ragas_eval import RagasEval
 
 
