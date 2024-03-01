@@ -12,7 +12,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
     && ln -fs /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
     && dpkg-reconfigure --frontend noninteractive tzdata
 
-RUN apt-get install gcc python3-dev
+RUN apt-get install -y gcc python3-dev
 
 # Official: https://pypi.org/simple
 ARG PYTHON_INDEX_URL=https://pypi.mirrors.ustc.edu.cn/simple/

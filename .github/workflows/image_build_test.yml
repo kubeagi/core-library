@@ -3,8 +3,6 @@ name: Test Build KubeAGI Core Library CLI Image
 on:
   pull_request:
     branches: [main]
-    paths:
-      - 'libs/**'
   workflow_dispatch:
 env:
   PYTHON_INDEX_URL: https://pypi.org/simple 
