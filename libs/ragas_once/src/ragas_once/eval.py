@@ -16,17 +16,17 @@ from typing import Union
 
 import pandas as pd
 from datasets import Dataset
-from langchain.chat_models import ChatOpenAI
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from ragas import evaluate
-from ragas.embeddings import RagasEmbeddings
-from ragas.llms import LangchainLLM, RagasLLM
+from ragas.llms import BaseRagasLLM
+from ragas.embeddings import BaseRagasEmbeddings
 from ragas.metrics import (AnswerCorrectness, AnswerRelevancy,
                            AnswerSimilarity, ContextPrecision, ContextRecall,
                            ContextRelevancy, Faithfulness)
 from ragas.metrics.base import Metric
-from ragas.utils import NO_KEY
 from ragas_once.embeddings.openai import OpenAIEmbeddings
 
+NO_KEY = "NO_KEY"
 
 class RagasEval:
     """
@@ -46,8 +46,8 @@ class RagasEval:
     llm_model: str = "gpt-3.5-turbo"
     embedding_model: str = "text-embedding-ada-002"
 
-    llm: RagasLLM
-    embeddings: RagasEmbeddings
+    llm: BaseRagasLLM
+    embeddings: BaseRagasEmbeddings
 
     def __init__(
         self,
@@ -65,20 +65,19 @@ class RagasEval:
         )
 
         # Initialize judge llm
-        self.llm = LangchainLLM(
-            llm=ChatOpenAI(
-                model_name=self.llm_model,
-                openai_api_key=self.api_key,
-                openai_api_base=self.api_base,
+        self.llm = ChatOpenAI(
+                model=self.llm_model,
+                api_key=self.api_key,
+                base_url=self.api_base,
             )
-        )
 
         # Initialize judge embedding
         self.embeddings = OpenAIEmbeddings(
-            api_key=self.api_key,
-            api_base=self.api_base,
-            model_name=self.embedding_model,
+                api_key=self.api_key,
+                base_url=self.api_base,
+                model=self.embedding_model,
         )
+
 
     def prepare_dataset(self, dataset: str = NO_KEY) -> Dataset:
         """
