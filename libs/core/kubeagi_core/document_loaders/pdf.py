@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import List
 
 from kubeagi_core.document_loaders.base import BaseLoader
-from langchain.document_loaders import PyPDFLoader
+from langchain_community.document_loaders import PyPDFLoader
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +39,7 @@ class PDFLoader(BaseLoader):
 
     def load(self) -> List:
         """
-        Load and return all Documents from the docx file.
+        Load and return all Documents from the pdf file.
 
         Returns:
             List[Document]: A list of Document objects.
