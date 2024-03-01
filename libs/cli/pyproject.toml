@@ -29,4 +29,4 @@ Homepage = "https://github.com/kubeagi/core-library"
 Issues = "https://github.com/kubeagi/core-library/issues"
 
 [project.scripts]
-convert = "kubeagi_cli.cli:app"
+kubeagi-cli = "kubeagi_cli.cli:app"

@@ -16,10 +16,12 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "langchain==0.0.354",
-    "ragas==0.0.22",
-    "zhipuai==1.0.7",
+    "docx2txt==0.8",
     "kubernetes==25.3.0",
+    "langchain==0.1.0",
+    "ragas==0.0.22",
+    "spacy==3.5.4",
+    "zhipuai==1.0.7",
 ]
 
 [project.optional-dependencies]

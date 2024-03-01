@@ -12,21 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from kubeagi_core.config import Config
+from kubeagi_core.document_loaders import PDFLoader
 
 
-def test_config():
-    print(">>> Start retrieving secret information.")
-    config = Config(
-        namespace="arcadia",
-        name="arcadia-config",
-        kubeconfig_path="/happy_work_space/.kube/config",
-    )
+def test_load_pdf():
+    print(">>> Starting load pdf")
+    pdf_loader = PDFLoader(file_path="xxx.pdf")
 
-    res = config.get_config()
+    document = pdf_loader.load()
     print("<<< Finished")
-    print(f"{res}")
+    print(f"document: {document}")
 
 
 if __name__ == "__main__":
-    test_config()
+    test_load_pdf()

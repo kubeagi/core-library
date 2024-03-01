@@ -12,21 +12,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from kubeagi_core.config import Config
+from kubeagi_core.document_chunks.spacy_splitter import SpacySplitter
+from kubeagi_core.document_loaders import PDFLoader
 
 
-def test_config():
-    print(">>> Start retrieving secret information.")
-    config = Config(
-        namespace="arcadia",
-        name="arcadia-config",
-        kubeconfig_path="/happy_work_space/.kube/config",
+def test_spacy_text_splitter():
+    print(">>> Starting spacy text splitter")
+    pdf_loader = PDFLoader(file_path="xxx.pdf")
+    pdf_documents = pdf_loader.load()
+
+    splitter = SpacySplitter(
+        separator="\n\n",
+        pipeline="zh_core_web_sm",
+        chunk_size=100,
+        chunk_overlap=10,
     )
+    documents = splitter.split_documents(pdf_documents)
 
-    res = config.get_config()
     print("<<< Finished")
-    print(f"{res}")
+    print(f"document: {documents}")
 
 
 if __name__ == "__main__":
-    test_config()
+    test_spacy_text_splitter()

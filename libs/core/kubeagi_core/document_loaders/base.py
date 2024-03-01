@@ -12,21 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from kubeagi_core.config import Config
+from abc import ABC, abstractmethod
+from typing import List
 
 
-def test_config():
-    print(">>> Start retrieving secret information.")
-    config = Config(
-        namespace="arcadia",
-        name="arcadia-config",
-        kubeconfig_path="/happy_work_space/.kube/config",
-    )
+class BaseLoader(ABC):
+    """Interface for Document Loader.
 
-    res = config.get_config()
-    print("<<< Finished")
-    print(f"{res}")
+    The `load` method will remain as is for backwards compatibility.
+    """
 
-
-if __name__ == "__main__":
-    test_config()
+    @abstractmethod
+    def load(self) -> List:
+        """Load data into Document objects."""
