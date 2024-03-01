@@ -1,0 +1,29 @@
+ARG PY_VER=3.11
+
+# python environment
+FROM python:${PY_VER}-slim AS runner
+ARG PACKAGE_REGISTRY="mirrors.tuna.tsinghua.edu.cn"
+RUN sed -i 's/deb.debian.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apt/sources.list.d/debian.sources
+
+ENV TZ=Asia/Shanghai
+RUN export DEBIAN_FRONTEND=noninteractive \
+    && apt-get update \
+    && apt-get install -y tzdata \
+    && ln -fs /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
+    && dpkg-reconfigure --frontend noninteractive tzdata
+
+RUN apt-get install gcc python3-dev
+
+# Official: https://pypi.org/simple
+ARG PYTHON_INDEX_URL=https://pypi.mirrors.ustc.edu.cn/simple/
+COPY libs /libs
+RUN python -m pip install ragas langchain==0.0.1 -i ${PYTHON_INDEX_URL}
+WORKDIR /libs/core
+RUN pip install -e . -i ${PYTHON_INDEX_URL}
+
+WORKDIR /libs/cli
+RUN pip install -e . -i ${PYTHON_INDEX_URL}
+
+ENV RERANKING_MODEL_PATH=BAAI/bge-reranker-large
+
+CMD [ "python","kubeagi_cli/cli.py","serve" ]
