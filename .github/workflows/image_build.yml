@@ -8,6 +8,7 @@ on:
   workflow_dispatch:
 env:
   PYTHON_INDEX_URL: https://pypi.org/simple
+  PACKAGE_REGISTRY: deb.debian.org
 
 jobs:
   build:
@@ -58,4 +59,5 @@ jobs:
             kubeagi/core-library-cli:${{ steps.set-env.outputs.TAG }}-${{ steps.set-env.outputs.DATE }}-${{ steps.short-sha.outputs.sha }}
           push: true
           build-args: |
+            PACKAGE_REGISTRY=${{ env.PACKAGE_REGISTRY }}
             PYTHON_INDEX_URL=${{ env.PYTHON_INDEX_URL }}
