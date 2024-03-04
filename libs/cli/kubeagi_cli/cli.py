@@ -16,11 +16,17 @@ import os
 import typer
 from typing_extensions import Annotated
 from kubeagi_core.evaluation.ragas_eval import RagasEval
+from . import convert
 
 
 __version__ = "0.0.1"
 
 app = typer.Typer(no_args_is_help=True, add_completion=False)
+app.add_typer(
+    convert.convert_cli,
+    name="convert",
+    help=convert.__doc__,
+)
 
 
 @app.command()
