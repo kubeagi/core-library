@@ -3,7 +3,7 @@ ARG PY_VER=3.11
 # python environment
 FROM python:${PY_VER}-slim AS runner
 ARG PACKAGE_REGISTRY="mirrors.tuna.tsinghua.edu.cn"
-RUN sed -i 's/deb.debian.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apt/sources.list.d/debian.sources
+RUN sed -i "s/deb.debian.org/${PACKAGE_REGISTRY}/g" /etc/apt/sources.list.d/debian.sources
 
 ENV TZ=Asia/Shanghai
 RUN export DEBIAN_FRONTEND=noninteractive \
