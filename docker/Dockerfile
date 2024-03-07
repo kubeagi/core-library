@@ -17,7 +17,7 @@ RUN apt-get install -y gcc python3-dev
 # Official: https://pypi.org/simple
 ARG PYTHON_INDEX_URL=https://pypi.mirrors.ustc.edu.cn/simple/
 COPY libs /libs
-RUN python -m pip install ragas langchain==0.0.1 -i ${PYTHON_INDEX_URL}
+RUN python -m pip install ragas langchain sentencepiece -i ${PYTHON_INDEX_URL}
 WORKDIR /libs/core
 RUN pip install -e . -i ${PYTHON_INDEX_URL}
 

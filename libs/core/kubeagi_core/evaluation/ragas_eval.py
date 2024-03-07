@@ -37,6 +37,7 @@ from ragas.metrics.base import Metric
 
 NO_KEY = "NO_KEY"
 
+
 class RagasEval:
     """
     The RagasEval class is a tool for evaluating natural language models (NLMs) using various metrics for question-answering tasks with the help of Ragas(https://github.com/explodinggradients/ragas). It utilizes a language model (LLM) and text embedding models for evaluation.
@@ -87,9 +88,9 @@ class RagasEval:
 
         # Initialize judge llm
         self.llm = ChatOpenAI(
-                model_name=self.llm_model,
-                openai_api_key=self.api_key,
-                openai_api_base=self.api_base,
+            model_name=self.llm_model,
+            openai_api_key=self.api_key,
+            openai_api_base=self.api_base,
         )
 
         # Initialize judge embedding
@@ -153,9 +154,7 @@ class RagasEval:
 
         return Dataset.from_pandas(data)
 
-    def _metrics(
-        self, metrics: list[str]
-    ) -> list[Metric]:
+    def _metrics(self, metrics: list[str]) -> list[Metric]:
         """
         initializes the metrics for evaluation.
 
@@ -169,12 +168,8 @@ class RagasEval:
         context_recall = ContextRecall(llm=self.llm)
         context_relevancy = ContextRelevancy(llm=self.llm)
 
-        answer_relevancy = AnswerRelevancy(
-            llm=self.llm, embeddings=self.embeddings
-        )
-        answer_similarity = AnswerSimilarity(
-            llm=self.llm, embeddings=self.embeddings
-        )
+        answer_relevancy = AnswerRelevancy(llm=self.llm, embeddings=self.embeddings)
+        answer_similarity = AnswerSimilarity(llm=self.llm, embeddings=self.embeddings)
         answer_correctness = AnswerCorrectness(
             llm=self.llm, answer_similarity=answer_similarity
         )
