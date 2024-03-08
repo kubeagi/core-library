@@ -17,9 +17,13 @@ classifiers = [
 ]
 dependencies = [
     "docx2txt==0.8",
+    "emoji==2.2.0",
+    "ftfy==6.1.1",
     "kubernetes==25.3.0",
     "langchain>=0.1.0",
     "ragas>=0.1.0",
+    "opencc-python-reimplemented==0.1.7",
+    "selectolax==0.3.17",
     "spacy==3.5.4",
     "zhipuai==1.0.7",
 ]
