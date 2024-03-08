@@ -22,7 +22,7 @@ from langchain_openai import OpenAIEmbeddings as BaseOpenAIEmbeddings
 
 from ragas import evaluate
 from ragas.embeddings import BaseRagasEmbeddings
-from ragas.llms import BaseRagasLLM
+from ragas.llms import BaseRagasLLM, LangchainLLMWrapper
 from ragas.metrics import (
     AnswerCorrectness,
     AnswerRelevancy,
@@ -87,10 +87,12 @@ class RagasEval:
         )
 
         # Initialize judge llm
-        self.llm = ChatOpenAI(
-            model_name=self.llm_model,
-            openai_api_key=self.api_key,
-            openai_api_base=self.api_base,
+        self.llm = LangchainLLMWrapper(
+            langchain_llm=ChatOpenAI(
+                name=self.llm_model,
+                api_key=self.api_key,
+                base_url=self.api_base,
+            )
         )
 
         # Initialize judge embedding
