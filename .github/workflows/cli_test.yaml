@@ -1,0 +1,69 @@
+name: Build and Test KubeAGI CLI Server
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  PYTHON_INDEX_URL: https://pypi.org/simple 
+  PACKAGE_REGISTRY: deb.debian.org
+      
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+        - name: Maximize build space
+          uses: easimon/maximize-build-space@master
+          with:
+            overprovision-lvm: true
+            remove-dotnet: 'true'
+            remove-android: 'true'
+            remove-haskell: 'true'
+            remove-codeql: 'true'
+            remove-docker-images: 'true'
+        - uses: actions/checkout@v4
+          with:
+            fetch-depth: 0
+        - name: Set up QEMU
+          uses: docker/setup-qemu-action@v3
+        - name: Set up Docker Buildx
+          uses: docker/setup-buildx-action@v3
+          with:
+            buildkitd-flags: --debug
+            config-inline: |
+              [worker.oci]
+                max-parallelism = 1
+
+        - name: Set up GCC
+          uses: egor-tensin/setup-gcc@v1
+          with:
+            version: latest
+            platform: x64
+        - name: Build core library cli image
+          id: build-worker
+          uses: docker/build-push-action@v5
+          with:
+            context: .
+            file: docker/Dockerfile
+            load: true
+            push: false
+            tags: test-image
+            build-args: |
+              PACKAGE_REGISTRY=${{ env.PACKAGE_REGISTRY }}
+              PYTHON_INDEX_URL=${{ env.PYTHON_INDEX_URL }}
+        - name: Run Docker Container
+          run: |
+            docker run -d --name cli-container test-image
+            docker ps
+        - name: Run test script
+          run: |
+            docker logs cli-container
+            docker cp tests/example_test.sh cli-container:/tmp/example_test.sh
+            docker exec cli-container bash /tmp/example_test.sh
+        - name: Stop and Remove Container
+          if: always()
+          run: |
+            docker stop cli-container
+            docker rm cli-container
