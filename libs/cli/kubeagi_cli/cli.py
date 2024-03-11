@@ -16,7 +16,7 @@ import os
 import typer
 from typing_extensions import Annotated
 from kubeagi_core.evaluation.ragas_eval import RagasEval
-from . import convert
+from kubeagi_cli import convert
 
 
 __version__ = "0.0.1"

@@ -26,4 +26,4 @@ RUN pip install -e . -i ${PYTHON_INDEX_URL}
 
 ENV RERANKING_MODEL_PATH=BAAI/bge-reranker-large
 
-CMD [ "python","kubeagi_cli/cli.py","serve" ]
+CMD [ "kubeagi-cli","serve" ]
