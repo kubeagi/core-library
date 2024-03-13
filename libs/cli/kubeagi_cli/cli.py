@@ -14,10 +14,11 @@
 
 import os
 import typer
+
 from typing_extensions import Annotated
 from kubeagi_core.evaluation.ragas_eval import RagasEval
 from kubeagi_cli import convert
-
+from kubeagi_cli.server import webapp
 
 __version__ = "0.0.1"
 
@@ -34,19 +35,25 @@ def serve(
     host: Annotated[
         str,
         typer.Option(
-            help="The base URL for the API. Defaults to OpenAI.",
+            help="The base URL for the API. Defaults to 127.0.0.1",
         ),
     ] = "127.0.0.1",
     port: Annotated[
         int,
         typer.Option(
-            help="The base URL for the API. Defaults to OpenAI.",
+            help="The base URL for the API. Defaults to 8000",
         ),
     ] = 8000,
+    log_level: Annotated[
+        str,
+        typer.Option(
+            help="The log level for this server. Defaults to info",
+        ),
+    ] = "info",
 ):
     import uvicorn
 
-    uvicorn.run("server:app", host=host, port=port, reload=True)
+    uvicorn.run(app=webapp, host=host, port=port, log_level=log_level)
 
 
 @app.command()
