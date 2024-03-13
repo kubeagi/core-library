@@ -21,7 +21,7 @@ import traceback
 from kubeagi_core.qa_provider.base import BaseQAProvider
 from kubeagi_core.qa_provider.prompt import PROMPT_TEMPLATE
 from langchain import LLMChain
-from langchain.chat_models import ChatOpenAI
+from langchain_openai import ChatOpenAI
 from langchain.prompts.chat import ChatPromptTemplate, HumanMessagePromptTemplate
 
 logger = logging.getLogger(__name__)

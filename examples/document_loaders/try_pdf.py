@@ -24,5 +24,14 @@ def test_load_pdf():
     print(f"document: {document}")
 
 
+def test_extract_images(file_path, output_dir):
+    print(">>> Starting extract images for pdf")
+    pdf_loader = PDFLoader(file_path=file_path)
+
+    loader.extract_images(output_dir=output_dir, remove_small_images=True)
+    print("<<< Finished")
+    print(f"images output dir: {output_dir}")
+
+
 if __name__ == "__main__":
     test_load_pdf()

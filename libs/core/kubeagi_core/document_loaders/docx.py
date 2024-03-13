@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import List
 
 from kubeagi_core.document_loaders.base import BaseLoader
-from langchain.document_loaders import Docx2txtLoader
+from langchain_community.document_loaders import Docx2txtLoader
 
 logger = logging.getLogger(__name__)
 
