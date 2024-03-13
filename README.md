@@ -8,3 +8,28 @@ Core library for kubeagi to provide apis&amp;sdk  in python
     </a>
   </p>
 </div>
+
+
+## Quick start
+
+### Install
+
+#### Method1: With pip
+
+```shell
+pip install kubeagi-cli
+```
+
+#### Method2: From source code
+
+```shell
+make install
+```
+
+### Run the CLI Server
+
+```shell
+kubeagi-cli serve
+```
+
+

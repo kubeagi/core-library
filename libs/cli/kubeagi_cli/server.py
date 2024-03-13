@@ -17,12 +17,12 @@ from typing import Optional, List
 from fastapi import FastAPI
 
 from pydantic import BaseModel, Field
-from serve.reranking import select_reranking
+from kubeagi_cli.serve.reranking import select_reranking
 
-app = FastAPI()
+webapp = FastAPI()
 
 
-@app.get("/api/v1/health")
+@webapp.get("/api/v1/health")
 def health():
     return {"Health": True}
 
@@ -33,7 +33,7 @@ class RerankingInput(BaseModel):
     answers: Optional[List[str]]
 
 
-@app.post("/api/v1/reranking")
+@webapp.post("/api/v1/reranking")
 def reranking(input: RerankingInput):
     # select reranking models based on model path
     reranker = select_reranking(input.model_name_or_path)
