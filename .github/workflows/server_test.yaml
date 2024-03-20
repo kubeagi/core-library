@@ -60,7 +60,7 @@ jobs:
         - name: Run test script
           run: |
             sleep 10
-            docker log cli-container
+            docker logs cli-container
             docker cp tests/example_test.sh cli-container:/tmp/example_test.sh
             docker exec cli-container bash /tmp/example_test.sh
         - name: Stop and Remove Container
