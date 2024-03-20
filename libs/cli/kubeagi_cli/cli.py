@@ -16,9 +16,8 @@ import os
 import typer
 
 from typing_extensions import Annotated
-from kubeagi_core.evaluation.ragas_eval import RagasEval
+
 from kubeagi_cli import convert
-from kubeagi_cli.server import webapp
 
 __version__ = "0.0.1"
 
@@ -52,6 +51,7 @@ def serve(
     ] = "info",
 ):
     import uvicorn
+    from kubeagi_cli.server import webapp
 
     uvicorn.run(app=webapp, host=host, port=port, log_level=log_level)
 
@@ -113,6 +113,8 @@ def evaluate(
         ),
     ] = None,
 ):
+    from kubeagi_cli.evaluation.ragas_eval import RagasEval
+
     print("evaluate RAG(Retrieval Augmented Generation)")
     # Initialize ragas_once with provided arguments
     eval = RagasEval(

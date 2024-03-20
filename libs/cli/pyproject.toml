@@ -17,16 +17,21 @@ classifiers = [
 ]
 dependencies = [
     "typer==0.9.0",
-    "fastapi==0.109.0",
-    "uvicorn==0.27.0",
-    "FlagEmbedding==1.2.3",
-    "BCEmbedding==0.1.3",
-    "kubeagi-core==0.0.1",
-    "ujson==5.9.0",
 ]
 
 [project.optional-dependencies]
 dev = ["black==23.3.0", "pylint==3.1.0"]
+eval = ["langchain>=0.1.0", "ragas>=0.1.0"]
+server = [
+    "fastapi==0.109.0",
+    "uvicorn==0.27.0",
+    "FlagEmbedding==1.2.3",
+    "BCEmbedding==0.1.3",
+    "sentencepiece",
+    "protobuf",
+    "ujson==5.9.0"
+]
+core = ["kubeagi-core==0.0.1"]
 
 [project.urls]
 Homepage = "https://github.com/kubeagi/core-library"

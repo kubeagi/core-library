@@ -11,7 +11,13 @@ lint:
 .PHONY: install
 install:
 	@pip install -e libs/core/
-	@pip install -e libs/cli/
+	@pip install -e 'libs/cli/.[server, core, eval]'
+
+install-eval:
+	@pip install -e 'libs/cli/.[eval]'
+
+install-server:
+	@pip install -e 'libs/cli/.[server]'
 
 .PHONY: server
 server: install
