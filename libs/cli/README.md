@@ -13,6 +13,12 @@ installation.
 
 - Install the Python SDK `pip install kubeagi-cli`
 
+- Install Server `pip install kubeagi-cli[server]`
+
+- Install Evaluation `pip install kubeagi-cli[eval]`
+
+- Install Core `pip install kubeagi-cli[core]`
+
 At this point, you should be able to run the following code:
 
 ```shell

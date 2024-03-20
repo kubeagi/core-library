@@ -14,13 +14,9 @@
 
 
 import typer
-import ujson
 
 from typing import List
 from typing_extensions import Annotated
-
-from kubeagi_core.document_transformers.pdf2csv import PDF2CSVTransform
-
 
 convert_cli = typer.Typer(no_args_is_help=True, add_completion=False)
 
@@ -56,6 +52,9 @@ def pdf(
         typer.Option(help="text chunk overlap"),
     ] = 50,
 ):
+    import ujson
+    from kubeagi_core.document_transformers.pdf2csv import PDF2CSVTransform
+
     """
     pdf transformer csv.
     """

@@ -13,6 +13,8 @@ installation.
 
 - Install the Python SDK `pip install kubeagi_core`
 
+- For experimental features (e.g. reading PDF files) use `pip install kubeagi_core[experiment]`
+
 At this point, you should be able to run the following code:
 
 ```python

@@ -17,12 +17,13 @@ RUN apt-get install -y gcc python3-dev
 # Official: https://pypi.org/simple
 ARG PYTHON_INDEX_URL=https://pypi.mirrors.ustc.edu.cn/simple/
 COPY libs /libs
+RUN python -m pip install --upgrade pip -i ${PYTHON_INDEX_URL}
 RUN python -m pip install ragas langchain sentencepiece protobuf -i ${PYTHON_INDEX_URL}
 WORKDIR /libs/core
 RUN pip install -e . -i ${PYTHON_INDEX_URL}
 
 WORKDIR /libs/cli
-RUN pip install -e . -i ${PYTHON_INDEX_URL}
+RUN pip install -e ".[server]" -i ${PYTHON_INDEX_URL}
 
 ENV RERANKING_MODEL_PATH=BAAI/bge-reranker-large
 
