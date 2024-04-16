@@ -14,13 +14,16 @@
 
 import logging
 import os
+import fitz
+import difflib
 from pathlib import Path
 from typing import List
+from collections import Counter, defaultdict
 
+from kubeagi_core.document import Document
 from kubeagi_core.document_loaders.base import BaseLoader
 from langchain_community.document_loaders import PyPDFLoader
 from PIL import Image
-from unstructured.partition.pdf import partition_pdf
 
 logger = logging.getLogger(__name__)
 
@@ -61,6 +64,52 @@ class PDFLoader(BaseLoader):
 
         return documents
 
+
+class PyMuPDFLoader(BaseLoader):
+    """Load pdf file using `PyMuPDF`."""
+
+    def __init__(
+        self,
+        file_path: str,
+    ):
+        """
+        Initialize the loader with a list of URL paths.
+
+        Args:
+            file_path (str): File Path.
+        """
+        self._file_path = file_path
+
+    def load(self) -> List[Document]:
+        """
+        Load and return all Documents from the pdf file.
+
+        Returns:
+            List[Document]: A list of Document objects.
+
+        """
+        logger.info("Start to load pdf file")
+
+        # Get file name
+        path = Path(self._file_path)
+        file_name = path.name
+
+        doc = fitz.open(self._file_path)
+
+        pages = []
+        for page in doc:
+            text = page.get_text(sort=True)
+            pages.append(text)
+        doc.close()
+
+        documents = []
+        result = self._remove_run(pages)
+        for i, item in enumerate(result):
+            metadata = {"source": file_name, "page": i}
+            documents.append(Document(page_content=item, metadata=metadata))
+
+        return documents
+
     def extract_images(
         self,
         output_dir: str,
@@ -85,12 +134,32 @@ class PDFLoader(BaseLoader):
                 The minimum height of the image.
         """
         try:
-            partition_pdf(
-                filename=self._file_path,
-                strategy="hi_res",
-                extract_images_in_pdf=True,
-                extract_image_block_output_dir=output_dir,
-            )
+            doc = fitz.open(self._file_path)
+            for i, item in enumerate(doc):
+                image_list = item.get_images()
+
+                # print the number of images found on the page
+                for image_index, img in enumerate(
+                    image_list, start=1
+                ):  # enumerate the image list
+                    xref = img[0]  # get the XREF of the image
+                    pix = fitz.Pixmap(doc, xref)  # create a Pixmap
+
+                    if pix.n - pix.alpha > 3:  # CMYK: convert to RGB first
+                        pix = fitz.Pixmap(fitz.csRGB, pix)
+
+                    output_file_name = (
+                        output_dir
+                        + "/figure-"
+                        + str(i)
+                        + "-"
+                        + str(image_index)
+                        + ".png"
+                    )
+                    pix.save(output_file_name)  # save the image as png
+                    pix = None
+
+            doc.close()
 
             if remove_small_images:
                 for filename in os.listdir(output_dir):
@@ -104,3 +173,173 @@ class PDFLoader(BaseLoader):
                                 os.remove(file_path)
         except Exception as e:
             logger.info(f"extract images fail: {e}")
+
+    def _remove_run(self, pages):
+        page_to_remove = defaultdict(list)
+        self._process_header(pages, page_to_remove)
+        self._process_footer(pages, page_to_remove)
+
+        result = []
+        for i, item in enumerate(pages):  # 遍历每一页
+            text = ""
+            str = item.split("\n")  # 每一页按行分割
+            delete_idx_in_page_i = page_to_remove[i]
+            for idx, s in enumerate(str):
+                if (
+                    idx in delete_idx_in_page_i
+                    or idx - len(str) in delete_idx_in_page_i
+                ):
+                    continue
+                else:
+                    text += s + "\n"
+            text = text[:-1]
+
+            result.append(text)
+        return result
+
+    def _process_header(self, pages, page_to_remove):
+        avg_similar_score = 1
+        vote_ratio = 1
+        idx = 0
+        skip_count = 0
+
+        while avg_similar_score > 0.5 or vote_ratio > 0.5 or skip_count < 3:
+            header_list = []
+            header_content_len = []
+            for item in pages:
+                str = item.split("\n")
+                header_list.append({"str": str[idx], "len": len(str[idx])})
+                header_content_len.append(len(str[idx]))
+
+            times = 0
+            total_score = 0
+            for i in range(0, len(header_list)):
+                for j in range(i + 1, len(header_list)):
+                    times += 1
+                    score = self._string_similar(
+                        header_list[i]["str"], header_list[j]["str"]
+                    )
+                    total_score += score
+            avg_similar_score = total_score / times
+            # 计算字符串相同长度出现最多次数的频率占比
+            dic = Counter(header_content_len)
+            dic = sorted(dic.items(), key=lambda item: item[1], reverse=True)
+            vote_ratio = dic[0][1] / len(header_content_len)
+            if avg_similar_score <= 0.5 and vote_ratio <= 0.5:
+                if skip_count < 3:
+                    skip_count += 1
+                else:
+                    break
+
+            # 如果平均相似度>0.8，直接全部删除
+            if avg_similar_score >= 0.8:
+                for i, item in enumerate(pages):  # 遍历每一页
+                    str = item.split("\n")  # 每一页按行分割
+                    page_to_remove[i].append(idx)  # 第i页添加需要去掉的list索引
+            # 如果相似度太低，按照最多相同长度为中心的[-2,2]范围，符合这个范围的页眉页脚都删掉
+            else:
+                for i, item in enumerate(header_list):  # 遍历每一页
+                    if item["len"] >= dic[0][0] - 2 and item["len"] <= dic[0][0] + 2:
+                        page_to_remove[i].append(idx)
+            idx += 1
+
+    def _process_footer(self, pages, page_to_remove):
+        avg_similar_score = 1
+        vote_ratio = 1
+        idx = -1
+        skip_count = 0
+
+        while avg_similar_score > 0.5 or vote_ratio > 0.5 or skip_count < 3:
+            header_list = []
+            header_content_len = []
+            for item in pages:
+                str = item.split("\n")
+                header_list.append({"str": str[idx], "len": len(str[idx])})
+                header_content_len.append(len(str[idx]))
+
+            times = 0
+            total_score = 0
+            for i in range(0, len(header_list)):
+                for j in range(i + 1, len(header_list)):
+                    times += 1
+                    score = self._string_similar(
+                        header_list[i]["str"], header_list[j]["str"]
+                    )
+                    total_score += score
+            avg_similar_score = total_score / times
+            # 计算字符串相同长度出现最多次数的频率占比
+            dic = Counter(header_content_len)
+            dic = sorted(dic.items(), key=lambda item: item[1], reverse=True)
+            vote_ratio = dic[0][1] / len(header_content_len)
+            if avg_similar_score <= 0.5 and vote_ratio <= 0.5:
+                if skip_count < 3:
+                    skip_count += 1
+                else:
+                    break
+
+            # 如果平均相似度>0.8，直接全部删除
+            if avg_similar_score >= 0.8:
+                for i, item in enumerate(pages):  # 遍历每一页
+                    page_to_remove[i].append(idx)  # 第i页添加需要去掉的list索引
+            # 如果相似度太低，按照最多相同长度为中心的[-2,2]范围，符合这个范围的页眉页脚都删掉
+            else:
+                for i, item in enumerate(header_list):  # 遍历每一页
+                    if item["len"] >= dic[0][0] - 2 and item["len"] <= dic[0][0] + 2:
+                        page_to_remove[i].append(idx)
+            idx -= 1
+
+    def _string_similar(self, s1, s2):
+        return difflib.SequenceMatcher(None, s1, s2).quick_ratio()
+
+    def extract_table(self):
+        """
+        extract table.
+        """
+        doc = fitz.open(self._file_path)
+
+        tables = []
+        for page_num, page in enumerate(doc):
+            tabs = page.find_tables()
+            for i, tab in enumerate(tabs.tables):
+                headers = tab.header.names
+                lines = tab.extract()
+
+                tables.append(lines)
+        doc.close()
+
+        return tables
+
+    def extract_table_to_markdown(self):
+        """
+        extract table to markdown.
+        """
+        doc = fitz.open(self._file_path)
+
+        tables = []
+        for page_num, page in enumerate(doc):
+            tabs = page.find_tables()
+            for i, tab in enumerate(tabs.tables):
+                headers = tab.header.names
+                lines = tab.extract()
+
+                text = self._output_to_markdown(headers, lines[1:])
+                tables.append(text)
+        doc.close()
+
+        return tables
+
+    def _output_to_markdown(self, headers, rows):
+        headers_row = [" " if cell in [None, ""] else cell for cell in headers]
+        markdown_output = (
+            "| " + " | ".join("%s" % i for i in headers_row) + " |"
+        ).replace("\n", "")
+        markdown_output += "\n" + "|---" * len(headers) + "|\n"
+
+        for row in rows:
+            processed_row = [" " if cell in [None, ""] else cell for cell in row]
+            markdown_output += ("| " + " | ".join(processed_row) + " |").replace(
+                "\n", ""
+            )
+            markdown_output += "\n"
+
+        return markdown_output
